@@ -38,7 +38,8 @@ def parse_episode_info(filename):
 
     # Detect version suffixes (v2, _2, etc.)
     v_match = re.search(r"(?:_v?|v)(\d)$", name, re.IGNORECASE)
-    v_suffix = f"_v{v_match.group(1)}" if v_match and v_match.group(1) != "1" else ""
+    v_num = v_match.group(1) if v_match else None
+    v_suffix = f"_v{v_num}" if v_num and v_num != "1" else ""
 
     return ep_num, v_suffix, ext
 
@@ -85,7 +86,7 @@ def main():
             continue
 
         ep_num, v_suffix, ext = result
-        new_name = f"{args.show_name} - S{args.season:02d}E{ep_num:03d}{v_suffix}{ext}"
+        new_name = f"{ep_num:03d}{v_suffix}{ext}"
 
         if filename != new_name:
             rename_plan.append((filename, new_name))
