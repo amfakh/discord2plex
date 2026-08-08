@@ -1,8 +1,11 @@
 import os
+import re
 import sys
 import asyncio
 import discord
 from dotenv import load_dotenv
+
+from streamable_scraper import download_streamable
 
 load_dotenv()
 
@@ -50,16 +53,14 @@ async def on_message(message):
     if CHANNEL_ID and str(message.channel.id) != str(CHANNEL_ID):
         return
 
-    # Check if message contains attachments
+    # 1. Check for Direct Video Attachments
     if message.attachments:
         for attachment in message.attachments:
             filename = attachment.filename
 
-            # Check if attachment is a video file
             if filename.lower().endswith((".mp4", ".mkv", ".webm", ".mov", ".avi")):
                 filepath = os.path.join(DOWNLOAD_DIR, filename)
 
-                # Skip if already downloaded
                 if os.path.exists(filepath):
                     print(f"[-] File already exists, skipping: {filename}")
                     continue
@@ -70,6 +71,20 @@ async def on_message(message):
                     print(f"[v] Successfully saved new episode: {filename}")
                 except Exception as e:
                     print(f"[X] Failed to save {filename}: {e}")
+
+    # 2. Check for Streamable Links (in content or embeds)
+    content = message.content or ""
+    streamable_links = re.findall(r"https?://(?:www\.)?streamable\.com/[a-zA-Z0-9]+", content)
+
+    if message.embeds:
+        for embed in message.embeds:
+            if embed.url and "streamable.com/" in embed.url:
+                streamable_links.append(embed.url)
+
+    streamable_links = list(dict.fromkeys(streamable_links))
+    for s_link in streamable_links:
+        print(f"[+] Real-time Streamable link detected! Downloading: {s_link}...")
+        download_streamable(s_link, DOWNLOAD_DIR)
 
 
 def main():
