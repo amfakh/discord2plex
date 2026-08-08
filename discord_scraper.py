@@ -1,10 +1,14 @@
 import os
 import random
+import re
 import sys
 import time
 
 import requests
 from dotenv import load_dotenv
+
+# Import download_streamable helper function from streamable_scraper module
+from streamable_scraper import download_streamable
 
 load_dotenv()
 
@@ -55,7 +59,7 @@ def download_video(url, filename, folder):
         print(f"[-] File already exists, skipping: {filename}")
         return False
 
-    print(f"[+] Downloading: {filename}...")
+    print(f"[+] Downloading direct attachment: {filename}...")
     try:
         # Use stream=True to conserve RAM during large video file downloads
         with requests.get(url, stream=True) as r:
@@ -71,7 +75,7 @@ def download_video(url, filename, folder):
 
 
 def main():
-    print("Starting channel history scraping...")
+    print("Starting channel history scraping for videos and Streamable links...")
     last_message_id = None
     messages_processed = 0
     videos_downloaded = 0
@@ -88,11 +92,12 @@ def main():
 
         for msg in messages:
             messages_processed += 1
+
+            # 1. Process Direct Attachments (.mp4, .mkv, etc.)
             if "attachments" in msg and len(msg["attachments"]) > 0:
                 for att in msg["attachments"]:
                     filename = att.get("filename", "")
 
-                    # Detect video files based on popular extensions
                     if filename.lower().endswith((".mp4", ".mkv", ".webm", ".mov", ".avi")):
                         url = att.get("url")
                         if url:
@@ -104,12 +109,41 @@ def main():
                                         f"\n[!] Successfully downloaded {MAX_VIDEOS} video(s) (MAX_VIDEOS limit reached). Stopping test."
                                     )
                                     break
-                                # Random delay between downloads to prevent rate limits / spam detection
                                 delay = random.uniform(DOWNLOAD_DELAY_MIN, DOWNLOAD_DELAY_MAX)
                                 print(f"   (Waiting {delay:.1f} seconds to avoid spam detection...)")
                                 time.sleep(delay)
                 if MAX_VIDEOS > 0 and videos_downloaded >= MAX_VIDEOS:
                     break
+
+            # 2. Process Streamable Links (from message text or embeds via streamable_scraper)
+            content = msg.get("content", "")
+            streamable_links = re.findall(r"https?://(?:www\.)?streamable\.com/[a-zA-Z0-9]+", content)
+
+            if "embeds" in msg and len(msg["embeds"]) > 0:
+                for embed in msg["embeds"]:
+                    embed_url = embed.get("url", "")
+                    if "streamable.com/" in embed_url:
+                        streamable_links.append(embed_url)
+
+            # Deduplicate links in the same message
+            streamable_links = list(dict.fromkeys(streamable_links))
+
+            for s_link in streamable_links:
+                success = download_streamable(s_link, DOWNLOAD_DIR)
+                if success:
+                    videos_downloaded += 1
+                    if MAX_VIDEOS > 0 and videos_downloaded >= MAX_VIDEOS:
+                        print(
+                            f"\n[!] Successfully downloaded {MAX_VIDEOS} video(s) (MAX_VIDEOS limit reached). Stopping test."
+                        )
+                        break
+                    delay = random.uniform(DOWNLOAD_DELAY_MIN, DOWNLOAD_DELAY_MAX)
+                    print(f"   (Waiting {delay:.1f} seconds to avoid spam detection...)")
+                    time.sleep(delay)
+
+            if MAX_VIDEOS > 0 and videos_downloaded >= MAX_VIDEOS:
+                break
+
         if MAX_VIDEOS > 0 and videos_downloaded >= MAX_VIDEOS:
             break
 
@@ -122,7 +156,7 @@ def main():
     print("\n" + "=" * 40)
     print("PROCESS COMPLETED!")
     print(f"Total messages checked: {messages_processed}")
-    print(f"Total videos downloaded: {videos_downloaded}")
+    print(f"Total videos/streamables downloaded: {videos_downloaded}")
     print("=" * 40)
 
 

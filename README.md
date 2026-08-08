@@ -61,9 +61,29 @@ window.webpackChunkdiscord_app.push([[Symbol()],{},e=>{
 
 ---
 
-## Running the Scraper
+## Available Scripts & Usage
 
-Run using `uv`:
+### 1. Direct Attachments Scraper (`discord_scraper.py`)
+Scrapes channel history and downloads direct `.mp4`, `.mkv`, `.mov`, etc. file attachments.
 ```bash
 uv run discord_scraper.py
+```
+
+### 2. Streamable Links Scraper (`streamable_scraper.py`)
+Scrapes channel history for `https://streamable.com/...` links and downloads them via `yt-dlp`.
+```bash
+uv run streamable_scraper.py
+```
+
+### 3. Real-Time Bot for New Episodes (`discord_bot.py`)
+Official Discord Bot listener for 100% legal, real-time downloads of new episodes auto-forwarded to your channel with zero risk of account ban.
+
+**Additional `.env` Configuration:**
+```env
+DISCORD_BOT_TOKEN="YOUR_OFFICIAL_DISCORD_BOT_TOKEN"
+```
+
+**Run the Real-Time Bot:**
+```bash
+uv run discord_bot.py
 ```
