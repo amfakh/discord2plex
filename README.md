@@ -89,3 +89,16 @@ DISCORD_BOT_TOKEN="YOUR_OFFICIAL_DISCORD_BOT_TOKEN"
 ```bash
 uv run discord_bot.py
 ```
+
+### 4. Episode Renamer (`rename_episodes.py`)
+Standardizes all messy downloaded filenames into Plex-compatible format (e.g. `Chiikawa - S01E096.mp4`).
+
+**Preview changes (Dry-Run):**
+```bash
+uv run rename_episodes.py --folder "/home/amfakh/media/TV Shows/Chiikawa"
+```
+
+**Apply changes:**
+```bash
+uv run rename_episodes.py --folder "/home/amfakh/media/TV Shows/Chiikawa" --apply
+```
