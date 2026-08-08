@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import argparse
 import os
 import re
@@ -75,15 +76,15 @@ def main():
     print("=" * 60)
 
     for old_file, new_file in rename_plan:
-        print("  {}\n  └─> {}\n".format(old_file, new_file))
+        print("  {}\n  -> {}\n".format(old_file, new_file))
 
     print("-" * 60)
     print("Total files to rename: {}".format(len(rename_plan)))
 
     if not args.apply:
-        print("\n💡 This was a DRY-RUN preview.")
+        print("\n[*] This was a DRY-RUN preview.")
         print("   To actually rename the files, run with '--apply':")
-        print("   python3 rename_episodes.py --folder \"{}\" --apply".format(folder))
+        print("   python rename_episodes.py --folder \"{}\" --apply".format(folder))
     else:
         print("\nRenaming files...")
         for old_file, new_file in rename_plan:
@@ -95,7 +96,7 @@ def main():
                 continue
 
             os.rename(old_path, new_path)
-        print("✨ All files renamed successfully!")
+        print("[v] All files renamed successfully!")
 
 
 if __name__ == "__main__":
