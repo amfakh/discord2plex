@@ -17,6 +17,11 @@ DOWNLOAD_DIR = os.getenv("DOWNLOAD_DIR", "/media/Plex/DiscordVideos")
 # If MAX_VIDEOS > 0, the script will stop after downloading that number of videos (useful for testing)
 MAX_VIDEOS = int(os.getenv("MAX_VIDEOS", 0))
 
+# Time parameters (in seconds)
+DOWNLOAD_DELAY_MIN = float(os.getenv("DOWNLOAD_DELAY_MIN", 30))
+DOWNLOAD_DELAY_MAX = float(os.getenv("DOWNLOAD_DELAY_MAX", 60))
+PAGE_DELAY = float(os.getenv("PAGE_DELAY", 10))
+
 if not TOKEN or not CHANNEL_ID:
     print("Error: DISCORD_TOKEN or DISCORD_CHANNEL_ID is not configured in .env file")
     sys.exit(1)
@@ -99,8 +104,8 @@ def main():
                                         f"\n[!] Successfully downloaded {MAX_VIDEOS} video(s) (MAX_VIDEOS limit reached). Stopping test."
                                     )
                                     break
-                                # Random delay 30-60 seconds to prevent rate limits / spam detection from Discord
-                                delay = random.uniform(30, 60)
+                                # Random delay between downloads to prevent rate limits / spam detection
+                                delay = random.uniform(DOWNLOAD_DELAY_MIN, DOWNLOAD_DELAY_MAX)
                                 print(f"   (Waiting {delay:.1f} seconds to avoid spam detection...)")
                                 time.sleep(delay)
                 if MAX_VIDEOS > 0 and videos_downloaded >= MAX_VIDEOS:
@@ -112,7 +117,7 @@ def main():
         last_message_id = messages[-1]["id"]
 
         # Delay between fetching history pages
-        time.sleep(10)
+        time.sleep(PAGE_DELAY)
 
     print("\n" + "=" * 40)
     print("PROCESS COMPLETED!")

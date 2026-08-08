@@ -26,6 +26,11 @@ DOWNLOAD_DIR="/path/to/your/Plex/DiscordVideos"
 
 # Optional: Set to 1 for quick test, or 0 (or omit) for full download
 MAX_VIDEOS=0
+
+# Time parameters (in seconds)
+DOWNLOAD_DELAY_MIN=30
+DOWNLOAD_DELAY_MAX=60
+PAGE_DELAY=10
 ```
 
 ---
