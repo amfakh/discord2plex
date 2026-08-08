@@ -53,7 +53,7 @@ def download_video(url, filename, folder):
     # Skip if file has already been downloaded
     if os.path.exists(filepath):
         print(f"[-] File already exists, skipping: {filename}")
-        return True
+        return False
 
     print(f"[+] Downloading: {filename}...")
     try:
