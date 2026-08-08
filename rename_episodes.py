@@ -15,12 +15,22 @@ def parse_episode_info(filename):
 
     name = os.path.splitext(filename)[0]
 
-    # Regex to find episode number (2 to 3 digits)
-    match = re.search(r"(?:YT|Chiikawa_|real_|^|\D)(\d{2,3})(?:\D|$)", name, re.IGNORECASE)
-    if not match:
-        return None
+    # Special handling for "real_134" vs old 134-142 range
+    is_real_134 = "real_134" in name.lower()
 
-    ep_num = int(match.group(1))
+    if is_real_134:
+        ep_num = 134
+    else:
+        # Regex to find episode number (2 to 3 digits)
+        match = re.search(r"(?:YT|Chiikawa_|^|\D)(\d{2,3})(?:\D|$)", name, re.IGNORECASE)
+        if not match:
+            return None
+
+        ep_num = int(match.group(1))
+
+        # Shift old episodes 134..142 up to 135..143 (filling the gap for real 134)
+        if 134 <= ep_num <= 142:
+            ep_num += 1
 
     # Detect version suffixes (v2, _2, etc.)
     v_match = re.search(r"(?:_v?|v)(\d)$", name, re.IGNORECASE)
@@ -64,18 +74,21 @@ def main():
         new_name = "{:03d}{}{}".format(ep_num, v_suffix, ext)
 
         if filename != new_name:
-            rename_plan.append((filename, new_name))
+            rename_plan.append((ep_num, filename, new_name))
 
     if not rename_plan:
         print("No files need renaming. Everything is already standardized!")
         return
+
+    # Sort rename plan by episode number DESCENDING (so 142->143 happens before 141->142, avoiding collisions)
+    rename_plan.sort(key=lambda x: x[0], reverse=True)
 
     print("=" * 60)
     print("FOLDER: {}".format(folder))
     print("MODE: {}".format("[APPLY]" if args.apply else "[DRY-RUN - No files changed yet]"))
     print("=" * 60)
 
-    for old_file, new_file in rename_plan:
+    for _, old_file, new_file in rename_plan:
         print("  {}\n  -> {}\n".format(old_file, new_file))
 
     print("-" * 60)
@@ -84,10 +97,10 @@ def main():
     if not args.apply:
         print("\n[*] This was a DRY-RUN preview.")
         print("   To actually rename the files, run with '--apply':")
-        print("   python rename_episodes.py --folder \"{}\" --apply".format(folder))
+        print("   uv run rename_episodes.py --folder \"{}\" --apply".format(folder))
     else:
         print("\nRenaming files...")
-        for old_file, new_file in rename_plan:
+        for _, old_file, new_file in rename_plan:
             old_path = os.path.join(folder, old_file)
             new_path = os.path.join(folder, new_file)
 
@@ -96,7 +109,8 @@ def main():
                 continue
 
             os.rename(old_path, new_path)
-        print("[v] All files renamed successfully!")
+            print("[v] Renamed: {} -> {}".format(old_file, new_file))
+        print("\n[v] All files renamed successfully!")
 
 
 if __name__ == "__main__":
