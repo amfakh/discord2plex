@@ -24,6 +24,8 @@ MAX_VIDEOS = int(os.getenv("MAX_VIDEOS", 0))
 # Time parameters (in seconds)
 DOWNLOAD_DELAY_MIN = float(os.getenv("DOWNLOAD_DELAY_MIN", 30))
 DOWNLOAD_DELAY_MAX = float(os.getenv("DOWNLOAD_DELAY_MAX", 60))
+STREAMABLE_DELAY_MIN = float(os.getenv("STREAMABLE_DELAY_MIN", 2))
+STREAMABLE_DELAY_MAX = float(os.getenv("STREAMABLE_DELAY_MAX", 5))
 PAGE_DELAY = float(os.getenv("PAGE_DELAY", 10))
 
 if not TOKEN or not CHANNEL_ID:
@@ -137,8 +139,8 @@ def main():
                             f"\n[!] Successfully downloaded {MAX_VIDEOS} video(s) (MAX_VIDEOS limit reached). Stopping test."
                         )
                         break
-                    delay = random.uniform(DOWNLOAD_DELAY_MIN, DOWNLOAD_DELAY_MAX)
-                    print(f"   (Waiting {delay:.1f} seconds to avoid spam detection...)")
+                    delay = random.uniform(STREAMABLE_DELAY_MIN, STREAMABLE_DELAY_MAX)
+                    print(f"   (Waiting {delay:.1f} seconds for Streamable download...)")
                     time.sleep(delay)
 
             if MAX_VIDEOS > 0 and videos_downloaded >= MAX_VIDEOS:
