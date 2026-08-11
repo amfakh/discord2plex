@@ -53,8 +53,13 @@ async def on_message(message):
     if CHANNEL_ID and str(message.channel.id) != str(CHANNEL_ID):
         return
 
+    print(f"\n[DEBUG] Received a message from {message.author} in channel {message.channel.id}")
+    print(f"        Has attachments: {bool(message.attachments)}, Content length: {len(message.content)}")
+
     # 1. Check for Direct Video Attachments
     if message.attachments:
+        msg_timestamp = message.created_at.timestamp()
+
         for attachment in message.attachments:
             filename = attachment.filename
 
@@ -68,7 +73,9 @@ async def on_message(message):
                 print(f"[+] Real-time new episode detected! Downloading: {filename}...")
                 try:
                     await attachment.save(filepath)
+                    os.utime(filepath, (msg_timestamp, msg_timestamp))
                     print(f"[v] Successfully saved new episode: {filename}")
+                    print(f"    [~] File metadata timestamp updated to Discord post date")
                 except Exception as e:
                     print(f"[X] Failed to save {filename}: {e}")
 
@@ -82,9 +89,11 @@ async def on_message(message):
                 streamable_links.append(embed.url)
 
     streamable_links = list(dict.fromkeys(streamable_links))
-    for s_link in streamable_links:
-        print(f"[+] Real-time Streamable link detected! Downloading: {s_link}...")
-        download_streamable(s_link, DOWNLOAD_DIR)
+    if streamable_links:
+        msg_timestamp = message.created_at.timestamp()
+        for s_link in streamable_links:
+            print(f"[+] Real-time Streamable link detected! Downloading: {s_link}...")
+            download_streamable(s_link, DOWNLOAD_DIR, message_timestamp=msg_timestamp)
 
 
 def main():
