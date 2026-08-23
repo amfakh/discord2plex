@@ -83,6 +83,7 @@ Official Discord Bot listener for 100% legal, real-time downloads of new episode
 **Additional `.env` Configuration:**
 ```env
 DISCORD_BOT_TOKEN="YOUR_OFFICIAL_DISCORD_BOT_TOKEN"
+DISCORD_BOT_CHANNEL_ID="YOUR_BOT_CHANNEL_ID"
 ```
 
 **Run the Real-Time Bot:**

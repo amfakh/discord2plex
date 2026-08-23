@@ -13,7 +13,7 @@ load_dotenv()
 # --- CONFIGURATION (VIA .env) ---
 # ==========================================
 BOT_TOKEN = os.getenv("DISCORD_BOT_TOKEN")
-CHANNEL_ID = os.getenv("DISCORD_CHANNEL_ID")
+CHANNEL_ID = os.getenv("DISCORD_BOT_CHANNEL_ID")
 DOWNLOAD_DIR = os.getenv("DOWNLOAD_DIR", "/media/Plex/DiscordVideos")
 
 if not BOT_TOKEN:
