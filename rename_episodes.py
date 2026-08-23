@@ -28,8 +28,11 @@ def parse_episode_info(filename):
 
         ep_num = int(match.group(1))
 
+        # Detect if filename is already clean (e.g., exactly 3 digits + extension)
+        is_clean = bool(re.match(r"^\d{3}\.\w{3,4}$", filename))
+
         # Shift old episodes 134..142 up to 135..143 (filling the gap for real 134)
-        if 134 <= ep_num <= 142:
+        if 134 <= ep_num <= 142 and not is_clean:
             ep_num += 1
 
     # Detect version suffixes (v2, _2, etc.)
