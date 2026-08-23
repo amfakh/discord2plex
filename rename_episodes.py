@@ -105,7 +105,8 @@ def main():
             new_path = os.path.join(folder, new_file)
 
             if os.path.exists(new_path):
-                print("[!] Warning: Target file {} already exists, skipping...".format(new_file))
+                print("[!] Target file {} already exists. Deleting duplicate {}...".format(new_file, old_file))
+                os.remove(old_path)
                 continue
 
             os.rename(old_path, new_path)
