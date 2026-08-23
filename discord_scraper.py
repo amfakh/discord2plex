@@ -10,6 +10,12 @@ from dotenv import load_dotenv
 # Import download_streamable helper function from streamable_scraper module
 from streamable_scraper import download_streamable
 
+# Import rename logic to standardize incoming filenames
+try:
+    from rename_episodes import parse_episode_info
+except ImportError:
+    parse_episode_info = None
+
 load_dotenv()
 
 # ==========================================
@@ -101,6 +107,13 @@ def main():
                     filename = att.get("filename", "")
 
                     if filename.lower().endswith((".mp4", ".mkv", ".webm", ".mov", ".avi")):
+                        # Standardize filename before checking if it exists
+                        if parse_episode_info:
+                            parsed = parse_episode_info(filename)
+                            if parsed:
+                                ep_num, v_suffix, ext = parsed
+                                filename = f"{ep_num:03d}{v_suffix}{ext}"
+
                         url = att.get("url")
                         if url:
                             success = download_video(url, filename, DOWNLOAD_DIR)

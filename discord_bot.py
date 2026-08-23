@@ -7,6 +7,12 @@ from dotenv import load_dotenv
 
 from streamable_scraper import download_streamable
 
+# Import rename logic to standardize incoming filenames
+try:
+    from rename_episodes import parse_episode_info
+except ImportError:
+    parse_episode_info = None
+
 load_dotenv()
 
 # ==========================================
@@ -64,6 +70,13 @@ async def on_message(message):
             filename = attachment.filename
 
             if filename.lower().endswith((".mp4", ".mkv", ".webm", ".mov", ".avi")):
+                # Standardize filename before checking if it exists
+                if parse_episode_info:
+                    parsed = parse_episode_info(filename)
+                    if parsed:
+                        ep_num, v_suffix, ext = parsed
+                        filename = f"{ep_num:03d}{v_suffix}{ext}"
+
                 filepath = os.path.join(DOWNLOAD_DIR, filename)
 
                 if os.path.exists(filepath):
