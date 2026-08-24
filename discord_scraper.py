@@ -152,9 +152,11 @@ def main():
                             f"\n[!] Successfully downloaded {MAX_VIDEOS} video(s) (MAX_VIDEOS limit reached). Stopping test."
                         )
                         break
-                    delay = random.uniform(STREAMABLE_DELAY_MIN, STREAMABLE_DELAY_MAX)
-                    print(f"   (Waiting {delay:.1f} seconds for Streamable download...)")
-                    time.sleep(delay)
+                
+                # Always wait after checking a Streamable link to avoid 429 Too Many Requests
+                delay = random.uniform(STREAMABLE_DELAY_MIN, STREAMABLE_DELAY_MAX)
+                print(f"   (Waiting {delay:.1f} seconds to avoid Streamable rate limit...)")
+                time.sleep(delay)
 
             if MAX_VIDEOS > 0 and videos_downloaded >= MAX_VIDEOS:
                 break
